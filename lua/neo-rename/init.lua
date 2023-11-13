@@ -40,27 +40,26 @@ local function handler(args)
     local reg_options =
       vim.tbl_get(client.server_capabilities or {}, "workspace", "fileOperations", "willRename")
 
-    if not reg_options then return end
-    if not matches_filters(dst, reg_options.filters) then return end
-
-    local params = {
-      files = {
-        {
-          oldUri = "file://" .. src,
-          newUri = "file://" .. dst,
+    if reg_options and matches_filters(dst, reg_options.filters) then
+      local params = {
+        files = {
+          {
+            oldUri = "file://" .. src,
+            newUri = "file://" .. dst,
+          },
         },
-      },
-    }
+      }
 
-    ---@diagnostic disable-next-line: missing-parameter
-    client.request("workspace/willRenameFiles", params, function(error, result)
-      if error then
-        local err_msg = type(error) == "string" and error or error.message
-        vim.notify("[workspace/willRenameFiles] " .. err_msg, vim.log.levels.WARN)
-      end
+      ---@diagnostic disable-next-line: missing-parameter
+      client.request("workspace/willRenameFiles", params, function(error, result)
+        if error then
+          local err_msg = type(error) == "string" and error or error.message
+          vim.notify("[workspace/willRenameFiles] " .. err_msg, vim.log.levels.ERROR)
+        end
 
-      if result then vim.lsp.util.apply_workspace_edit(result, client.offset_encoding) end
-    end)
+        if result then vim.lsp.util.apply_workspace_edit(result, client.offset_encoding) end
+      end)
+    end
   end
 end
 
