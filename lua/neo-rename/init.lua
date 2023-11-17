@@ -33,19 +33,18 @@ end
 
 local function handler(args)
   local clients = vim.lsp.get_clients()
-  local src = vim.fs.normalize(args.source)
-  local dst = vim.fs.normalize(args.destination)
+  local target = vim.fs.normalize(args.destination)
 
   for _, client in pairs(clients) do
     local reg_options =
       vim.tbl_get(client.server_capabilities or {}, "workspace", "fileOperations", "willRename")
 
-    if reg_options and matches_filters(dst, reg_options.filters) then
+    if reg_options and matches_filters(target, reg_options.filters) then
       local params = {
         files = {
           {
-            oldUri = "file://" .. src,
-            newUri = "file://" .. dst,
+            oldUri = vim.uri_from_fname(args.source),
+            newUri = vim.uri_from_fname(args.destination),
           },
         },
       }
