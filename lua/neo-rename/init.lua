@@ -22,8 +22,6 @@ local function matches_filters(name, filters)
     return type == matches or not matches
   end, filters)
 
-  if vim.tbl_isempty(matching_filters) then return true end
-
   for _, filter in pairs(matching_filters) do
     if matches_filter(name, filter) then return true end
   end
